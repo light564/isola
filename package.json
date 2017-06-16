@@ -1,0 +1,24 @@
+{
+  "name": "isola",
+  "version": "0.0.1",
+  "description": "vr game isola",
+  "scripts": {},
+  "author": {
+    "email": "light.wsj"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "three": "~0.85.2",
+    "stats.js": "~0.17.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.2.10",
+    "babel-preset-es2015": "~6.9.0",
+    "webpack": "~1.13.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}
