@@ -43788,7 +43788,7 @@
 
 	var initCamera = function initCamera() {
 	    exports.camera = camera = new _three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-	    camera.position.set(0, 0, 100);
+	    camera.position.set(0, 0, 50);
 	    camera.lookAt(new _three.Vector3(0, 0, 0));
 	};
 
@@ -43849,12 +43849,28 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var initWorld = function initWorld() {
+	    initLight();
+
 	    (0, _loadModel2.default)('island1_base', '/src/model/island1').then(function (object) {
+	        object.position.set(0, 0, 0);
 	        console.log(object.position);
 	    });
+	};
 
-	    var light = new _three.AmbientLight(0xFFFFFF); // soft white light
-	    _game.scene.add(light);
+	var initLight = function initLight() {
+	    // var ambientLight = new AmbientLight( 0xFFFFFF );
+	    // scene.add( ambientLight );
+
+	    // var pointLight = new PointLight( 0xFFFFFF, 1, 100 );
+	    // pointLight.position.set( 0, 0, 0 );
+	    // scene.add( pointLight );
+
+	    var directionalLight = new _three.DirectionalLight(0xFFFFFF, 0.5);
+	    directionalLight.position.set(1, 1, 0);
+	    _game.scene.add(directionalLight);
+
+	    // var hemisphereLight = new HemisphereLight( 0x40ADCE, 0x607CB2, 1 );
+	    // scene.add( hemisphereLight );
 	};
 
 	exports.initWorld = initWorld;
