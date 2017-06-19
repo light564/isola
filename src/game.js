@@ -3,7 +3,9 @@ import {
     PerspectiveCamera,
     WebGLRenderer,
     Scene,
-    Vector3
+    Vector3,
+    Fog,
+    FogExp2
 } from 'three';
 
 import {initWorld} from './world';
@@ -12,7 +14,7 @@ import OrbitControls from './controls/orbitControls';
 let stats;
 let renderer;
 let camera;
-let scene = new Scene();
+let scene;
 
 let initStats = function(){
     stats = new Stats();
@@ -24,7 +26,7 @@ let initCanvas = function(){
     renderer = new WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
     // 设置背景色
-    renderer.setClearColor(0x40ADCE, 1);
+    renderer.setClearColor(0xFFFFFF, 1);
     document.body.appendChild( renderer.domElement );
 };
 
@@ -32,6 +34,13 @@ let initCamera = function(){
     camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     camera.position.set(0, 0, 50);
     camera.lookAt(new Vector3(0, 0, 0));
+};
+
+let initScene = function(){
+    scene = new Scene();
+    // 雾？
+    // scene.fog = new FogExp2( 0xFFFFFF, 0.01 );
+    // scene.fog.color.setHSL( 0.6, 0, 1 );
 };
 
 let initControl = function(){
@@ -49,6 +58,7 @@ let initGame = function(){
     initStats();
     initCanvas();
     initCamera();
+    initScene();
     initWorld();
     initControl();
     render();

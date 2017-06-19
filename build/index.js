@@ -43761,7 +43761,7 @@
 
 	var _world = __webpack_require__(4);
 
-	var _orbitControls = __webpack_require__(8);
+	var _orbitControls = __webpack_require__(9);
 
 	var _orbitControls2 = _interopRequireDefault(_orbitControls);
 
@@ -43770,7 +43770,7 @@
 	var stats = void 0;
 	var renderer = void 0;
 	var camera = void 0;
-	var scene = new _three.Scene();
+	var scene = void 0;
 
 	var initStats = function initStats() {
 	    stats = new _stats2.default();
@@ -43782,7 +43782,7 @@
 	    renderer = new _three.WebGLRenderer();
 	    renderer.setSize(window.innerWidth, window.innerHeight);
 	    // 设置背景色
-	    renderer.setClearColor(0x40ADCE, 1);
+	    renderer.setClearColor(0xFFFFFF, 1);
 	    document.body.appendChild(renderer.domElement);
 	};
 
@@ -43790,6 +43790,13 @@
 	    exports.camera = camera = new _three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 	    camera.position.set(0, 0, 50);
 	    camera.lookAt(new _three.Vector3(0, 0, 0));
+	};
+
+	var initScene = function initScene() {
+	    exports.scene = scene = new _three.Scene();
+	    // 雾？
+	    // scene.fog = new FogExp2( 0xFFFFFF, 0.01 );
+	    // scene.fog.color.setHSL( 0.6, 0, 1 );
 	};
 
 	var initControl = function initControl() {
@@ -43807,6 +43814,7 @@
 	    initStats();
 	    initCanvas();
 	    initCamera();
+	    initScene();
 	    (0, _world.initWorld)();
 	    initControl();
 	    render();
@@ -43846,11 +43854,13 @@
 
 	var _game = __webpack_require__(2);
 
+	var _shaders = __webpack_require__(8);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var initWorld = function initWorld() {
 	    initLight();
-
+	    initSky();
 	    (0, _loadModel2.default)('island1_base', '/src/model/island1').then(function (object) {
 	        object.position.set(0, 0, 0);
 	        console.log(object.position);
@@ -43858,19 +43868,44 @@
 	};
 
 	var initLight = function initLight() {
-	    // var ambientLight = new AmbientLight( 0xFFFFFF );
-	    // scene.add( ambientLight );
+	    var ambientLight = new _three.AmbientLight(0xFFFFFF);
+	    _game.scene.add(ambientLight);
 
 	    // var pointLight = new PointLight( 0xFFFFFF, 1, 100 );
 	    // pointLight.position.set( 0, 0, 0 );
 	    // scene.add( pointLight );
 
-	    var directionalLight = new _three.DirectionalLight(0xFFFFFF, 0.5);
-	    directionalLight.position.set(1, 1, 0);
-	    _game.scene.add(directionalLight);
+	    // var directionalLight = new DirectionalLight( 0xFFFFFF, 0.5 );
+	    // directionalLight.position.set(1, 1, 0);
+	    // scene.add( directionalLight );
 
-	    // var hemisphereLight = new HemisphereLight( 0x40ADCE, 0x607CB2, 1 );
-	    // scene.add( hemisphereLight );
+	    // let hemiLight = new HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+	    // hemiLight.color.setHSL( 0.6, 1, 0.6 );
+	    // hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+	    // hemiLight.position.set( 0, 500, 0 );
+	    // scene.add( hemiLight );
+	};
+
+	var initSky = function initSky() {
+	    var uniforms = {
+	        topColor: { value: new _three.Color(0x40ADCE) },
+	        bottomColor: { value: new _three.Color(0x607CB2) },
+	        offset: { value: 0 },
+	        exponent: { value: 0.6 }
+	    };
+
+	    var skyGeo = new _three.SphereGeometry(200, 32, 15);
+	    var skyMat = new _three.ShaderMaterial({
+	        vertexShader: _shaders.skyShader.vertex,
+	        fragmentShader: _shaders.skyShader.fragment,
+	        uniforms: uniforms,
+	        side: _three.BackSide
+	    });
+
+	    // scene.fog.color.copy( uniforms.bottomColor.value );
+
+	    var sky = new _three.Mesh(skyGeo, skyMat);
+	    _game.scene.add(sky);
 	};
 
 	exports.initWorld = initWorld;
@@ -45067,6 +45102,22 @@
 
 /***/ },
 /* 8 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	var skyShader = {
+	    vertex: "\n        varying vec3 vWorldPosition;\n\n        void main() {\n\n            vec4 worldPosition = modelMatrix * vec4( position, 1.0 );\n            vWorldPosition = worldPosition.xyz;\n\n            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n\n        }\n    ",
+	    fragment: "\n        uniform vec3 topColor;\n        uniform vec3 bottomColor;\n        uniform float offset;\n        uniform float exponent;\n\n        varying vec3 vWorldPosition;\n\n        void main() {\n\n            float h = normalize( vWorldPosition + offset ).y;\n            gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );\n\n        }\n    "
+	};
+
+	exports.skyShader = skyShader;
+
+/***/ },
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
