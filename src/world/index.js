@@ -26,8 +26,18 @@ let initWorld = function(){
 };
 
 let initLight = function(){
-    var ambientLight = new AmbientLight( 0xFFFFFF );
+    var ambientLight = new AmbientLight( 0xCCCCCC );
     scene.add( ambientLight );
+
+    var directionalLight1 = new DirectionalLight( 0xCCCCCC );
+    var directionalLight2 = new DirectionalLight( 0xCCCCCC );
+    var directionalLight3 = new DirectionalLight( 0xCCCCCC );
+    directionalLight1.position.set( 0, 0, 1 ).normalize();
+    directionalLight2.position.set( 0, 1, 0 ).normalize();
+    directionalLight3.position.set( 1, 0, 0 ).normalize();
+    scene.add( directionalLight1 );
+    scene.add( directionalLight2 );
+    scene.add( directionalLight3 );
 
     // var pointLight = new PointLight( 0xFFFFFF, 1, 100 );
     // pointLight.position.set( 0, 0, 0 );

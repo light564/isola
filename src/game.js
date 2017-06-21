@@ -25,8 +25,9 @@ let initStats = function(){
 let initCanvas = function(){
     renderer = new WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setPixelRatio( window.devicePixelRatio );
     // 设置背景色
-    renderer.setClearColor(0xFFFFFF, 1);
+    // renderer.setClearColor(0xFFFFFF, 1);
     document.body.appendChild( renderer.domElement );
 };
 
