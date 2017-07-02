@@ -1,11 +1,17 @@
 import OBJLoader from '../lib/loaders/OBJLoader';
-import MTLLoader from '../lib/loaders/MTLLoader';
+import MTLLoader, {MaterialCreator} from '../lib/loaders/MTLLoader';
 import DDSLoader from '../lib/loaders/DDSLoader';
 import {scene} from '../game';
 import {
+    addGroup,
+    addGroupInScene,
+    removeGroupInScene
+} from './group';
+import {
     JSONLoader,
     MeshFaceMaterial,
-    Mesh
+    Mesh,
+    DefaultLoadingManager
 } from 'three';
 
 // console.log(DDSLoader);
@@ -29,8 +35,7 @@ export default function loadModel(modelName, modelPath){
 
             objLoader.load(`${modelPath}/${obj}`,
                 function ( object ) {
-                    // let material = new MeshFaceMaterial(materials);
-                    scene.add( object );
+                    addGroup(`obj-${modelName}`, object);
                     resolve(object);
                 },
                 onProgress,
@@ -45,6 +50,37 @@ export default function loadModel(modelName, modelPath){
         });
     });
 };
+
+function loadModelInMaterials(modelName, modelPath, materialInfo){
+    let obj = `${modelName}.obj`;
+    let materialCreator = new MaterialCreator();
+    // materialCreator.setCrossOrigin();
+    materialCreator.setManager(DefaultLoadingManager);
+    materialCreator.setMaterials(materialInfo);
+    materialCreator.preload();
+
+    let objLoader = new OBJLoader();
+    objLoader.setMaterials( materialCreator );
+
+    let onProgress = function(){};
+
+    return new Promise(function(resolve, reject){
+        objLoader.load(`${modelPath}/${obj}`,
+            function ( object ) {
+                addGroup(`obj-${modelName}`, object);
+                resolve(object);
+            },
+            onProgress,
+            function(){
+                console.log(`loader ${obj} error`);
+            }
+        );
+    });
+};
+
+export {
+    loadModelInMaterials
+}
 
 // export default function loadModel(modelName, modelPath){
 //     let dataSource = `${modelName}.json`;

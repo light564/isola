@@ -1,4 +1,5 @@
 import {
+    Group,
     BackSide,
     Color,
     Vector3,
@@ -13,45 +14,31 @@ import {
 
 import loadModel from '../tool/loadModel';
 import {scene} from '../game';
+import {addGroup} from '../tool/group';
 
 import {skyShader} from './shaders';
 
 let initWorld = function(){
     initLight();
     initSky();
-    loadModel('island1_base', '/src/model/island1').then(function(object){
+    loadModel('dolphin', '/src/model/dolphin').then(function(object){
         object.position.set(0, 0, 0);
         console.log(object.position);
     });
 };
 
 let initLight = function(){
-    var ambientLight = new AmbientLight( 0xCCCCCC );
-    scene.add( ambientLight );
 
-    var directionalLight1 = new DirectionalLight( 0xCCCCCC );
-    var directionalLight2 = new DirectionalLight( 0xCCCCCC );
-    var directionalLight3 = new DirectionalLight( 0xCCCCCC );
+    var ambientLight = new AmbientLight( 0xFFFFFF );
+    addGroup('ambientLight', ambientLight);
+
+    var directionalLight1 = new DirectionalLight( 0xFFFFFF );
+    var directionalLight2 = new DirectionalLight( 0xFFFFFF );
+    var directionalLight3 = new DirectionalLight( 0xFFFFFF );
     directionalLight1.position.set( 0, 0, 1 ).normalize();
     directionalLight2.position.set( 0, 1, 0 ).normalize();
     directionalLight3.position.set( 1, 0, 0 ).normalize();
-    scene.add( directionalLight1 );
-    scene.add( directionalLight2 );
-    scene.add( directionalLight3 );
-
-    // var pointLight = new PointLight( 0xFFFFFF, 1, 100 );
-    // pointLight.position.set( 0, 0, 0 );
-    // scene.add( pointLight );
-
-    // var directionalLight = new DirectionalLight( 0xFFFFFF, 0.5 );
-    // directionalLight.position.set(1, 1, 0);
-    // scene.add( directionalLight );
-
-    // let hemiLight = new HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-    // hemiLight.color.setHSL( 0.6, 1, 0.6 );
-    // hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-    // hemiLight.position.set( 0, 500, 0 );
-    // scene.add( hemiLight );
+    addGroup('directionalLight', directionalLight1, directionalLight2, directionalLight3);
 };
 
 let initSky = function(){

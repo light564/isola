@@ -478,3 +478,7 @@ export default class MTLLoader{
 
     }
 }
+
+export {
+    MaterialCreator
+}
