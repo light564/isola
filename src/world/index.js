@@ -21,10 +21,31 @@ import {skyShader} from './shaders';
 let initWorld = function(){
     initLight();
     initSky();
-    loadModel('dolphin', '/src/model/dolphin').then(function(object){
+    // 测试专用
+    loadModel('dolphin', '../src/model/dolphin').then(function(object){
         object.position.set(0, 0, 0);
         console.log(object.position);
     });
+
+    // loadModel('island1_base', '../src/model/island1').then(function(object){
+    //     object.position.set(0, 0, 0);
+    //     console.log(object.position);
+    // });
+
+    // loadModel('island1_cloud', '../src/model/island1').then(function(object){
+    //     object.position.set(0, 0, 0);
+    //     console.log(object.position);
+    // });
+
+    // loadModel('island1_stone1', '../src/model/island1').then(function(object){
+    //     object.position.set(0, 0, 0);
+    //     console.log(object.position);
+    // });
+
+    // loadModel('island1_stone2', '../src/model/island1').then(function(object){
+    //     object.position.set(0, 0, 0);
+    //     console.log(object.position);
+    // });
 };
 
 let initLight = function(){

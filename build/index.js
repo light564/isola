@@ -43751,7 +43751,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.initGame = exports.camera = exports.scene = undefined;
+	exports.renderer = exports.control = exports.initGame = exports.camera = exports.scene = undefined;
 
 	var _stats = __webpack_require__(3);
 
@@ -43777,6 +43777,7 @@
 	var renderer = void 0;
 	var camera = void 0;
 	var scene = void 0;
+	var control = void 0;
 
 	var initStats = function initStats() {
 	    stats = new _stats2.default();
@@ -43788,6 +43789,7 @@
 	    var materialsInfo = {
 	        'Material.022': {
 	            'name': 'Material.022',
+	            'material': 'MeshPhongMaterial',
 	            'ns': '30',
 	            'ka': [0.64, 0.64, 0.64],
 	            'kd': [0.115303, 0.365129, 0.446672],
@@ -43836,6 +43838,8 @@
 	            var _ke2 = materialsInfo['Material.022'].ke.split(' ');
 	            _ke2[2] = value;
 	            materialsInfo['Material.022'].ke = _ke2.join(' ');
+	        } else if (name === 'material') {
+	            materialsInfo['Material.022'].material = value;
 	        }
 
 	        console.log(materialsInfo);
@@ -43846,6 +43850,7 @@
 	    var setting = {
 	        ambientLight: true,
 	        directionalLight: true,
+	        material: 'MeshPhongMaterial',
 	        Kax: 0.64,
 	        Kay: 0.64,
 	        Kaz: 0.64,
@@ -43871,16 +43876,21 @@
 	    menuDiv.appendChild(gui.domElement);
 
 	    menuDiv.addEventListener('mousedown', function (e) {
-	        e.stopPropagation();
-	        e.preventDefault();
-	        return false;
+	        var nodeName = e.target.nodeName.toLowerCase();
+	        if (nodeName !== 'select') {
+	            e.stopPropagation();
+	            e.preventDefault();
+	            return false;
+	        }
 	    }, false);
-	    menuDiv.addEventListener('mousemove', function (e) {
-	        return false;
-	    }, false);
-	    menuDiv.addEventListener('mouseup', function (e) {
-	        return false;
-	    }, false);
+
+	    menuDiv.addEventListener('mouseenter', function () {
+	        control.enabled = false;
+	    });
+
+	    menuDiv.addEventListener('mouseleave', function () {
+	        control.enabled = true;
+	    });
 
 	    var lightOptions = gui.addFolder('光照');
 	    lightOptions.add(setting, 'ambientLight').name('环境光').onChange(function (v) {
@@ -43891,16 +43901,17 @@
 	    });
 	    lightOptions.open();
 	    var materialOptions = gui.addFolder('材质');
+	    materialOptions.add(setting, 'material', ['MeshBasicMaterial', 'MeshPhongMaterial', 'MeshLambertMaterial']).name('材质类型').onChange(renderModel.bind(window, 'material'));
 	    materialOptions.add(setting, 'd', 0.0, 1.0, 0.1).name('d(溶解度)').onChange(renderModel.bind(window, 'd'));
 	    materialOptions.add(setting, 'Ni', 0.0, 1.0, 0.04).name('Ni(折射率)').onChange(renderModel.bind(window, 'ni'));
 	    materialOptions.add(setting, 'Ns', 0, 300, 1).name('Ns(反射高光度)').onChange(renderModel.bind(window, 'ns'));
-	    var kaOptions = materialOptions.addFolder('Ka(环境光属性)');
+	    // let kaOptions = materialOptions.addFolder('Ka(环境光属性)');
 	    var kdOptions = materialOptions.addFolder('Kd(漫反射属性)');
 	    var ksOptions = materialOptions.addFolder('Ks(镜面反射系数)');
 	    var keOptions = materialOptions.addFolder('Ke(材质放射颜色)');
-	    kaOptions.add(setting, 'Kax', 0.0, 1.0, 0.01).name('X').onChange(renderModel.bind(window, 'kax'));
-	    kaOptions.add(setting, 'Kay', 0.0, 1.0, 0.01).name('Y').onChange(renderModel.bind(window, 'kay'));
-	    kaOptions.add(setting, 'Kaz', 0.0, 1.0, 0.01).name('Z').onChange(renderModel.bind(window, 'kaz'));
+	    // kaOptions.add(setting, 'Kax', 0.0, 1.0, 0.01).name('X').onChange(renderModel.bind(window, 'kax'));
+	    // kaOptions.add(setting, 'Kay', 0.0, 1.0, 0.01).name('Y').onChange(renderModel.bind(window, 'kay'));
+	    // kaOptions.add(setting, 'Kaz', 0.0, 1.0, 0.01).name('Z').onChange(renderModel.bind(window, 'kaz'));
 	    kdOptions.add(setting, 'Kdx', 0.0, 1.0, 0.01).name('X').onChange(renderModel.bind(window, 'kdx'));
 	    kdOptions.add(setting, 'Kdy', 0.0, 1.0, 0.01).name('Y').onChange(renderModel.bind(window, 'kdy'));
 	    kdOptions.add(setting, 'Kdz', 0.0, 1.0, 0.01).name('Z').onChange(renderModel.bind(window, 'kdz'));
@@ -43914,7 +43925,7 @@
 	};
 
 	var initCanvas = function initCanvas() {
-	    renderer = new _three.WebGLRenderer();
+	    exports.renderer = renderer = new _three.WebGLRenderer();
 	    renderer.setSize(window.innerWidth, window.innerHeight);
 	    renderer.setPixelRatio(window.devicePixelRatio);
 	    // 设置背景色
@@ -43936,7 +43947,7 @@
 	};
 
 	var initControl = function initControl() {
-	    var orb = new _orbitControls2.default(camera, render.domElement);
+	    exports.control = control = new _orbitControls2.default(camera, render.domElement);
 	};
 
 	var render = function render() {
@@ -43960,6 +43971,8 @@
 	exports.scene = scene;
 	exports.camera = camera;
 	exports.initGame = initGame;
+	exports.control = control;
+	exports.renderer = renderer;
 
 /***/ },
 /* 3 */
@@ -44020,10 +44033,31 @@
 	var initWorld = function initWorld() {
 	    initLight();
 	    initSky();
-	    (0, _loadModel2.default)('dolphin', '/src/model/dolphin').then(function (object) {
+	    // 测试专用
+	    (0, _loadModel2.default)('dolphin', '../src/model/dolphin').then(function (object) {
 	        object.position.set(0, 0, 0);
 	        console.log(object.position);
 	    });
+
+	    // loadModel('island1_base', '../src/model/island1').then(function(object){
+	    //     object.position.set(0, 0, 0);
+	    //     console.log(object.position);
+	    // });
+
+	    // loadModel('island1_cloud', '../src/model/island1').then(function(object){
+	    //     object.position.set(0, 0, 0);
+	    //     console.log(object.position);
+	    // });
+
+	    // loadModel('island1_stone1', '../src/model/island1').then(function(object){
+	    //     object.position.set(0, 0, 0);
+	    //     console.log(object.position);
+	    // });
+
+	    // loadModel('island1_stone2', '../src/model/island1').then(function(object){
+	    //     object.position.set(0, 0, 0);
+	    //     console.log(object.position);
+	    // });
 	};
 
 	var initLight = function initLight() {
@@ -46609,13 +46643,57 @@
 	    while (model.type === 'Group') {
 	        model = model.children[0];
 	    }
-	    var materialCreator = new _MTLLoader.MaterialCreator();
-	    materialCreator.setCrossOrigin();
-	    materialCreator.setManager(_three.DefaultLoadingManager);
-	    materialCreator.setMaterials(materialInfo);
-	    materialCreator.preload();
 
-	    var material = materialCreator.create('Material.022');
+	    var info = materialInfo[Object.keys(materialInfo)[0]];
+	    var type = info.material;
+	    var params = {};
+	    var material = void 0;
+
+	    Object.keys(info).forEach(function (k) {
+	        var value = info[k];
+
+	        if (value === '') {
+	            return;
+	        }
+
+	        switch (k.toLowerCase()) {
+	            case 'kd':
+	                // Diffuse color (color under white light) using RGB values
+	                params.color = new _three.Color().fromArray(value);
+	                break;
+	            case 'ks':
+	                // Specular color (color when light is reflected from shiny surface) using RGB values
+	                params.specular = new _three.Color().fromArray(value);
+	                break;
+	            case 'ns':
+	                // The specular exponent (defines the focus of the specular highlight)
+	                // A high exponent results in a tight, concentrated highlight. Ns values normally range from 0 to 1000.
+	                params.shininess = parseFloat(value);
+	                break;
+	            case 'd':
+	                if (value < 1) {
+	                    params.opacity = value;
+	                    params.transparent = true;
+	                }
+	                break;
+	            case 'Tr':
+	                if (value > 0) {
+	                    params.opacity = 1 - value;
+	                    params.transparent = true;
+	                }
+	                break;
+	            default:
+	                break;
+	        }
+	    });
+
+	    if (type === 'MeshPhongMaterial') {
+	        material = new _three.MeshPhongMaterial(params);
+	    } else if (type === 'MeshBasicMaterial') {
+	        material = new _three.MeshBasicMaterial(params);
+	    } else if (type === 'MeshLambertMaterial') {
+	        material = new _three.MeshLambertMaterial(params);
+	    }
 
 	    var geometry = model.geometry.clone();
 	    // let material = model.material.clone();

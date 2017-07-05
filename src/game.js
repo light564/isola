@@ -28,6 +28,7 @@ let stats;
 let renderer;
 let camera;
 let scene;
+let control;
 
 let initStats = function(){
     stats = new Stats();
@@ -39,6 +40,7 @@ let initDebugBoard = function(){
     let materialsInfo = {
         'Material.022': {
             'name': 'Material.022',
+            'material': 'MeshPhongMaterial',
             'ns': '30',
             'ka': [
                 0.64,
@@ -114,6 +116,9 @@ let initDebugBoard = function(){
             ke[2] = value;
             materialsInfo['Material.022'].ke = ke.join(' ');
         }
+        else if(name === 'material'){
+            materialsInfo['Material.022'].material = value;
+        }
 
         console.log(materialsInfo);
 
@@ -123,6 +128,7 @@ let initDebugBoard = function(){
     let setting = {
         ambientLight: true,
         directionalLight: true,
+        material: 'MeshPhongMaterial',
         Kax: 0.64,
         Kay: 0.64,
         Kaz: 0.64,
@@ -148,16 +154,21 @@ let initDebugBoard = function(){
     menuDiv.appendChild(gui.domElement);
 
     menuDiv.addEventListener( 'mousedown', function(e){
-        e.stopPropagation();
-        e.preventDefault();
-        return false;
+        let nodeName = e.target.nodeName.toLowerCase();
+        if(nodeName !== 'select'){
+            e.stopPropagation();
+            e.preventDefault();
+            return false;
+        }
     }, false );
-    menuDiv.addEventListener( 'mousemove', function(e){
-        return false;
-    }, false );
-    menuDiv.addEventListener( 'mouseup', function(e){
-        return false;
-    }, false );
+
+    menuDiv.addEventListener('mouseenter', function(){
+        control.enabled = false;
+    });
+
+    menuDiv.addEventListener('mouseleave', function(){
+        control.enabled = true;
+    });
 
     let lightOptions = gui.addFolder('光照');
     lightOptions.add(setting, 'ambientLight').name('环境光').onChange((v) => {
@@ -168,16 +179,17 @@ let initDebugBoard = function(){
     });
     lightOptions.open();
     let materialOptions = gui.addFolder('材质');
+    materialOptions.add(setting, 'material', ['MeshBasicMaterial', 'MeshPhongMaterial', 'MeshLambertMaterial']).name('材质类型').onChange(renderModel.bind(window, 'material'));
     materialOptions.add(setting, 'd', 0.0, 1.0, 0.1).name('d(溶解度)').onChange(renderModel.bind(window, 'd'));
     materialOptions.add(setting, 'Ni', 0.0, 1.0, 0.04).name('Ni(折射率)').onChange(renderModel.bind(window, 'ni'));
     materialOptions.add(setting, 'Ns', 0, 300, 1).name('Ns(反射高光度)').onChange(renderModel.bind(window, 'ns'));
-    let kaOptions = materialOptions.addFolder('Ka(环境光属性)');
+    // let kaOptions = materialOptions.addFolder('Ka(环境光属性)');
     let kdOptions = materialOptions.addFolder('Kd(漫反射属性)');
     let ksOptions = materialOptions.addFolder('Ks(镜面反射系数)');
     let keOptions = materialOptions.addFolder('Ke(材质放射颜色)');
-    kaOptions.add(setting, 'Kax', 0.0, 1.0, 0.01).name('X').onChange(renderModel.bind(window, 'kax'));
-    kaOptions.add(setting, 'Kay', 0.0, 1.0, 0.01).name('Y').onChange(renderModel.bind(window, 'kay'));
-    kaOptions.add(setting, 'Kaz', 0.0, 1.0, 0.01).name('Z').onChange(renderModel.bind(window, 'kaz'));
+    // kaOptions.add(setting, 'Kax', 0.0, 1.0, 0.01).name('X').onChange(renderModel.bind(window, 'kax'));
+    // kaOptions.add(setting, 'Kay', 0.0, 1.0, 0.01).name('Y').onChange(renderModel.bind(window, 'kay'));
+    // kaOptions.add(setting, 'Kaz', 0.0, 1.0, 0.01).name('Z').onChange(renderModel.bind(window, 'kaz'));
     kdOptions.add(setting, 'Kdx', 0.0, 1.0, 0.01).name('X').onChange(renderModel.bind(window, 'kdx'));
     kdOptions.add(setting, 'Kdy', 0.0, 1.0, 0.01).name('Y').onChange(renderModel.bind(window, 'kdy'));
     kdOptions.add(setting, 'Kdz', 0.0, 1.0, 0.01).name('Z').onChange(renderModel.bind(window, 'kdz'));
@@ -213,7 +225,7 @@ let initScene = function(){
 };
 
 let initControl = function(){
-    let orb = new OrbitControls( camera, render.domElement );
+    control = new OrbitControls( camera, render.domElement );
 };
 
 let render = function(){
@@ -237,5 +249,7 @@ let initGame = function(){
 export {
     scene,
     camera,
-    initGame
+    initGame,
+    control,
+    renderer
 };
